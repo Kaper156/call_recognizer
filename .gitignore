@@ -1,4 +1,4 @@
-/credentials.ini
+/configuration.ini
 *.iml
 .idea/*
 env/*
