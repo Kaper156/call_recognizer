@@ -1,0 +1,4 @@
+/credentials.ini
+*.iml
+.idea/*
+env/*
