@@ -3,12 +3,12 @@ import os.path
 import unittest
 
 from recognizer.config import Config
-from tests.settings import API_KEY, SECRET_KEY
+from tests.settings import BAD_CONFIG_FILE, API_KEY, SECRET_KEY
 
 
 class TestConfig(unittest.TestCase):
     def setUp(self) -> None:
-        self.exist_config_file_path = './files/test_config.ini'
+        self.exist_config_file_path = BAD_CONFIG_FILE
         self.not_exist_config_file_path = self.exist_config_file_path + '.not_exist'
 
     def test_config_file_not_exist(self):
