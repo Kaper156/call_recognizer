@@ -5,14 +5,14 @@ from grpc._channel import _InactiveRpcError
 from recognizer.api import ApiClient
 from recognizer.config import Config
 
-from tests.settings import FIRST_WAV, PATH_TO_WAV_FILES
+from tests.settings import FIRST_WAV, PATH_TO_WAV_FILES, REAL_CONFIG_FILE
 
 
 # To avoid day limit while testing api
 def make_stubs():
     import json
     stubs = dict()
-    c = Config('../configuration.ini')
+    c = Config(REAL_CONFIG_FILE)
     api = ApiClient(**c.get_api_credentials())
     wav_files = [[os.path.join(PATH_TO_WAV_FILES, file_name), 0, 0]
                  for file_name in sorted(os.listdir(PATH_TO_WAV_FILES))]
@@ -39,7 +39,7 @@ class TestApiClientSetup(unittest.TestCase):
 
 class TestAPI(unittest.TestCase):
     def setUp(self) -> None:
-        c = Config('../configuration.ini')
+        c = Config(REAL_CONFIG_FILE)
         self.api = ApiClient(**c.get_api_credentials(), stubs_filepath='files/stubs.txt')
 
         # Create list of tuples with: filepath, stage1_response, stage2_response
