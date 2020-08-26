@@ -19,11 +19,12 @@ class Config:
         self.parser['API']['api_key'] = ''
         self.parser['API']['secret_key'] = ''
 
-        # self.parser.add_section('DB')
-        # self.parser['DB']['host'] = ''
-        # self.parser['DB']['port'] = ''
-        # self.parser['DB']['user'] = ''
-        # self.parser['DB']['password'] = ''
+        self.parser.add_section('DB')
+        self.parser['DB']['host'] = ''
+        self.parser['DB']['port'] = ''
+        self.parser['DB']['database'] = ''
+        self.parser['DB']['user'] = ''
+        self.parser['DB']['password'] = ''
 
         with open(self.filepath, 'w') as file_handler:
             self.parser.write(file_handler)
@@ -35,5 +36,10 @@ class Config:
         }
 
     def get_db_config(self):
-        raise NotImplementedError
-        # return None
+        return {
+            'user': self.parser['DB']['user'],
+            'password': self.parser['DB']['password'],
+            'host': self.parser['DB']['host'],
+            'port': self.parser['DB']['port'],
+            'database': self.parser['DB']['database'],
+        }

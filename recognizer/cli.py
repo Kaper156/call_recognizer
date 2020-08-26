@@ -34,6 +34,7 @@ def phone(value):
 
 def stage(value):
     # Check values
+    # TODO fix to 1 and 2
     if value in ['0', '1']:
         return int(value)
     raise argparse.ArgumentTypeError(f'Stage must be 0 or 1:"{value}"')
@@ -54,7 +55,8 @@ def parse_args(argv):
     parser.add_argument('-s', action='store', dest='stage', required=True, type=stage)
 
     try:
-        args = parser.parse_args(argv[1:])
+        args = parser.parse_args(argv)
+
     except argparse.ArgumentTypeError as exc:
         log(exc)
         exit(1)
