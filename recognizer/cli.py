@@ -54,7 +54,7 @@ def parse_args(argv):
     parser.add_argument('-s', action='store', dest='stage', required=True, type=stage)
 
     try:
-        args = parser.parse_args(argv)
+        args = parser.parse_args(argv[1:])
     except argparse.ArgumentTypeError as exc:
         log(exc)
         exit(1)
