@@ -1,5 +1,7 @@
 import os
 import unittest
+import copy
+
 from grpc._channel import _InactiveRpcError
 
 from recognizer.api import ApiClient
@@ -43,24 +45,61 @@ class TestAPI(unittest.TestCase):
         self.api = ApiClient(**c.get_api_credentials(), stubs_filepath='files/stubs.txt')
 
         # Create list of tuples with: filepath, stage1_response, stage2_response
-        self.wav_files = [[os.path.join(PATH_TO_WAV_FILES, file_name), 0, 0]
-                          for file_name in sorted(os.listdir(PATH_TO_WAV_FILES))]
-        # STAGE One is answerphone?
-        self.wav_files[0][1] = 0
-        self.wav_files[1][1] = 1
-        self.wav_files[2][1] = 1
-        self.wav_files[3][1] = 1
+        self.wav_files = list(os.path.abspath(os.path.join(PATH_TO_WAV_FILES, rel_filepath))
+                              for rel_filepath in sorted(os.listdir(PATH_TO_WAV_FILES)))
+        expected_without_stages = {
+            self.wav_files[0]: {
+                "transcription": 'вас приветствует автоответчик оставьте сообщение после сигнала',
+                "duration": 5.7
+            },
+            self.wav_files[1]: {
+                "transcription": 'алло говорите',
+                "duration": 3.3
+            },
+            self.wav_files[2]: {
+                "transcription": 'ну да удобно его слушаю',
+                "duration": 4.5
+            },
+            self.wav_files[3]: {
+                "transcription": 'нет я сейчас на работе до свидания',
+                "duration": 3.9
+            }
+        }
 
-        # STAGE Two is comfort?
-        self.wav_files[0][2] = 1
-        self.wav_files[1][2] = 1
-        self.wav_files[2][2] = 1
-        self.wav_files[3][2] = 0
+        # Set expected on first stage
+        self.expected_on_stage1 = copy.deepcopy(expected_without_stages)
+        # Set stage_number
+        self.expected_on_stage1[self.wav_files[0]]['stage_number'] = 1
+        self.expected_on_stage1[self.wav_files[1]]['stage_number'] = 1
+        self.expected_on_stage1[self.wav_files[2]]['stage_number'] = 1
+        self.expected_on_stage1[self.wav_files[3]]['stage_number'] = 1
 
-    def test_stage_one_is_human(self):
-        for wav_file in self.wav_files:
-            self.assertEqual(self.api.recognize_wav(wav_file[0], 1), wav_file[1])
+        # Set answer
+        self.expected_on_stage1[self.wav_files[0]]['answer'] = 0
+        self.expected_on_stage1[self.wav_files[1]]['answer'] = 1
+        self.expected_on_stage1[self.wav_files[2]]['answer'] = 1
+        self.expected_on_stage1[self.wav_files[3]]['answer'] = 1
 
-    def test_stage_two_is_comfort(self):
-        for wav_file in self.wav_files:
-            self.assertEqual(self.api.recognize_wav(wav_file[0], 2), wav_file[2])
+        # Set expected on first stage
+        self.expected_on_stage2 = copy.deepcopy(expected_without_stages)
+        # Set stage_number
+        self.expected_on_stage2[self.wav_files[0]]['stage_number'] = 2
+        self.expected_on_stage2[self.wav_files[1]]['stage_number'] = 2
+        self.expected_on_stage2[self.wav_files[2]]['stage_number'] = 2
+        self.expected_on_stage2[self.wav_files[3]]['stage_number'] = 2
+
+        # Set answer
+        self.expected_on_stage2[self.wav_files[0]]['answer'] = 1
+        self.expected_on_stage2[self.wav_files[1]]['answer'] = 1
+        self.expected_on_stage2[self.wav_files[2]]['answer'] = 1
+        self.expected_on_stage2[self.wav_files[3]]['answer'] = 0
+
+    def test_stage_1_is_human(self):
+        for path_to_wav_file, expected in self.expected_on_stage1.items():
+            actual = self.api.recognize_wav(path_to_wav_file, 1)
+            self.assertDictEqual(actual, expected)
+
+    def test_stage_2_is_comfort(self):
+        for path_to_wav_file, expected in self.expected_on_stage2.items():
+            actual = self.api.recognize_wav(path_to_wav_file, 2)
+            self.assertDictEqual(actual, expected)
