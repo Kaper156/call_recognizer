@@ -7,6 +7,7 @@ from recognizer.cli import parse_args
 from tests.settings import FIRST_WAV
 
 
+# TODO change expected dict to Namespace
 class TestCliArgParser(unittest.TestCase):
     def setUp(self) -> None:
         self.file = FIRST_WAV
@@ -15,12 +16,16 @@ class TestCliArgParser(unittest.TestCase):
             '-p', '+74950111255',
             '-db',
             '-s', '1',
+            '-s_id', '1',
+            '-p_id', '1',
         ]
         self.default_expected = {
             'filepath': FIRST_WAV,
             'phone': 74950111255,
             'db': True,
             'stage': 1,
+            'server_id': 1,
+            'project_id': 1,
         }
 
     def test_parse_args_correct_values(self):
@@ -66,7 +71,7 @@ class TestCliArgParser(unittest.TestCase):
     def test_parse_args_stage_incorrect_string_value(self, mock_stderr):
         argv = self.default_argv.copy()
         # make number with length 16 digits
-        argv[-1] = "One"
+        argv[6] = "One"
         with self.assertRaises(SystemExit):
             parse_args(argv)
         self.assertRegexpMatches(mock_stderr.getvalue(), r"Stage must be 0 or 1:.*")
@@ -75,7 +80,7 @@ class TestCliArgParser(unittest.TestCase):
     def test_parse_args_stage_incorrect_int_value_three(self, mock_stderr):
         argv = self.default_argv.copy()
         # make number with length 16 digits
-        argv[-1] = '3'
+        argv[6] = '3'
         with self.assertRaises(SystemExit):
             parse_args(argv)
         self.assertRegexpMatches(mock_stderr.getvalue(), r"Stage must be 0 or 1:.*")
@@ -84,7 +89,7 @@ class TestCliArgParser(unittest.TestCase):
     def test_parse_args_stage_incorrect_int_value_negative_one(self, mock_stderr):
         argv = self.default_argv.copy()
         # make number with length 16 digits
-        argv[-1] = '-1'
+        argv[6] = '-1'
         with self.assertRaises(SystemExit):
             parse_args(argv)
         self.assertRegexpMatches(mock_stderr.getvalue(), r"Stage must be 0 or 1:.*")
@@ -95,7 +100,25 @@ class TestCliArgParser(unittest.TestCase):
 
         # delete -d parameter
         argv = self.default_argv.copy()
-        del argv[-3]
+        del argv[4]
 
         actual = parse_args(argv)
         self.assertDictEqual(actual.__dict__, expected)
+
+    def test_parse_args_without_server_id(self):
+        # delete -s_id parameter and value
+        argv = self.default_argv.copy()
+        del argv[8]
+        del argv[7]
+
+        actual = parse_args(argv)
+        self.assertDictEqual(actual.__dict__, self.default_expected)
+
+    def test_parse_args_without_project_id(self):
+        # delete -p_id parameter and value
+        argv = self.default_argv.copy()
+        del argv[10]
+        del argv[9]
+
+        actual = parse_args(argv)
+        self.assertDictEqual(actual.__dict__, self.default_expected)

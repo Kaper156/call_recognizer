@@ -13,6 +13,7 @@ class TranscriptionAnalyzer:
 
     def __init__(self, response):
         self.transcription = ''
+        self.duration = 0
         # TODO refactor this
 
         for part in response:
@@ -23,6 +24,7 @@ class TranscriptionAnalyzer:
                     max_confidence = alternative['confidence']
                     better_transcript = alternative['transcript']
             self.transcription += better_transcript
+            self.duration = float(part['end_time'].replace('s', ''))
 
     def analyze_by_stage(self, stage):
         if stage == 1:
@@ -43,3 +45,9 @@ class TranscriptionAnalyzer:
             if negative_phrase in self.transcription:
                 return 0
         return 1
+
+    def get_transcription(self):
+        return self.transcription
+
+    def get_duration(self):
+        return self.duration

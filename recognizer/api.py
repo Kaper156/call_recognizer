@@ -59,4 +59,9 @@ class ApiClient:
             # TODO make errors and perform responses
             raise ApiClientError("Something went wrong during request API")
         analyzer = TranscriptionAnalyzer(response)
-        return analyzer.analyze_by_stage(stage)
+        return {
+            "stage_number": stage,
+            "answer": analyzer.analyze_by_stage(stage),
+            "transcription": analyzer.get_transcription(),
+            "duration": analyzer.get_duration()
+        }

@@ -2,7 +2,7 @@ import unittest
 
 from recognizer.config import Config
 from recognizer.database import DatabaseController
-from recognizer.helpers import get_timestamp_utc
+from recognizer.helpers import get_datetime_now_utc
 
 from tests.settings import REAL_CONFIG_FILE
 
@@ -23,7 +23,7 @@ class TestDatabaseController(unittest.TestCase):
 
     def test_save_call_data_now_first_stage_without_server_and_project(self):
         self.dbc.save_call_data(
-            date_time=get_timestamp_utc(),
+            date_time=get_datetime_now_utc(),
             stage=1,
             result=1,
             phone_number=71234567890,
@@ -33,7 +33,7 @@ class TestDatabaseController(unittest.TestCase):
 
     def test_save_call_data_now_first_stage_with_server_and_project(self):
         self.dbc.save_call_data(
-            date_time=get_timestamp_utc(),
+            date_time=get_datetime_now_utc(),
             stage=1,
             result=1,
             phone_number=71234567890,
