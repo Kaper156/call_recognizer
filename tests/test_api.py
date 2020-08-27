@@ -10,23 +10,6 @@ from recognizer.config import Config
 from tests.settings import FIRST_WAV, PATH_TO_WAV_FILES, REAL_CONFIG_FILE
 
 
-# To avoid day limit while testing api
-def make_stubs():
-    import json
-    stubs = dict()
-    c = Config(REAL_CONFIG_FILE)
-    api = ApiClient(**c.get_api_credentials())
-    wav_files = [[os.path.join(PATH_TO_WAV_FILES, file_name), 0, 0]
-                 for file_name in sorted(os.listdir(PATH_TO_WAV_FILES))]
-    for wav_file in wav_files:
-        response = api.get_stt(wav_file[0])
-        stubs[wav_file[0]] = response
-    print(stubs)
-
-    with open('stubs.txt', 'wt') as stubs_file:
-        json.dump(stubs, stubs_file)
-
-
 class TestApiClientSetup(unittest.TestCase):
     def test_init_without_credentials(self):
         api = ApiClient(api_key='', secret_key='')
