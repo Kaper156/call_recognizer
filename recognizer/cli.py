@@ -44,26 +44,34 @@ def parse_args(argv):
     parser = argparse.ArgumentParser()
 
     # First of all set path to .wav file
-    parser.add_argument('-f', dest='filepath', required=True, type=existing_file)
+    parser.add_argument('-f', dest='filepath', required=True, type=existing_file,
+                        help="Path to .wav file")
 
     # Next step, phone number
-    parser.add_argument('-p', action='store', dest='phone', required=True, type=phone)
+    parser.add_argument('-p', action='store', dest='phone', required=True, type=phone,
+                        help="Phone number in format: [+]1234567 or [+]123456789012345 "
+                             "(Support world standart of length between 7 and 15)")
 
     # Save to db?
-    parser.add_argument('-db', action='store_true', dest='db', )
+    parser.add_argument('-db', action='store_true', dest='db',
+                        help="Flag of using DB (Before using set DB section in configuration.ini)")
 
     # Stage of recognition .wav
-    parser.add_argument('-s', action='store', dest='stage', required=True, type=stage)
+    parser.add_argument('-s', action='store', dest='stage', required=True, type=stage,
+                        help="Stage of recognition, now support only: 1 or 2")
 
     # Set optional parameter name of project which related with call
     parser.add_argument('-p_name', action='store', dest='project_name', type=str,
+                        help="Name of project with which phone call will be connected",
                         default="Тестовый проект", required=False)
 
     # Set optional parameter name of server which related with call
     parser.add_argument('-s_name', action='store', dest='server_name', type=str,
+                        help="Name of server with which phone call will be connected",
                         default="Тестовый сервер", required=False)
     # Set optional parameter ip-address of server which related with call
     parser.add_argument('-s_ip', action='store', dest='server_ip', type=str,
+                        help="IP of server with which phone call will be connected",
                         default="8.8.8.8", required=False)
 
     try:
