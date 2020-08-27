@@ -1,13 +1,11 @@
-import logging
-
 from recognizer.api import ApiClient
 from recognizer.cli import parse_args
 from recognizer.config import Config
 from recognizer.database import update_or_insert_phone_call
-from recognizer.helpers import get_datetime_now_utc, remove_file
+from recognizer.helpers import remove_file, get_wav_last_modify_date_time
 
 
-def main(args, run_date_time):
+def main(args):
     import recognizer.logger
 
     # Load config (API and DB configuration)
@@ -18,8 +16,9 @@ def main(args, run_date_time):
     # Get response from API and recognize by stage
     api_response = api.recognize_wav(args.filepath, args.stage)
 
+    call_date_time = get_wav_last_modify_date_time(args.filepath)
     phone_call_values = {
-        'date_time': run_date_time,
+        'date_time': call_date_time,
         'stage_number': api_response['stage_number'],
         'answer': api_response['answer'],
         'phone_number': args.phone,
@@ -49,9 +48,7 @@ def main(args, run_date_time):
 if __name__ == '__main__':
     import sys
 
-    # After start program save date and time (without TZ)
-    run_date_time = get_datetime_now_utc()
     # Parse command line arguments
     args = parse_args(sys.argv[1:])
     # Run main algorithm
-    main(args, run_date_time)
+    main(args)
