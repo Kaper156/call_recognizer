@@ -16,16 +16,20 @@ class TestCliArgParser(unittest.TestCase):
             '-p', '+74950111255',
             '-db',
             '-s', '1',
-            '-s_id', '1',
-            '-p_id', '1',
+            '-p_name', 'Тестовый проект №1',
+            '-s_name', 'Тестовый сервер №1',
+            '-s_ip', '1.1.1.1',
+
         ]
         self.default_expected = {
             'filepath': FIRST_WAV,
             'phone': 74950111255,
             'db': True,
             'stage': 1,
-            'server_id': 1,
-            'project_id': 1,
+            'project_name': 'Тестовый проект №1',
+            'server_name': 'Тестовый сервер №1',
+            'server_ip': '1.1.1.1',
+
         }
         self.default_expected_namespace = Namespace(**self.default_expected)
 
@@ -116,20 +120,34 @@ class TestCliArgParser(unittest.TestCase):
         actual = parse_args(argv)
         self.assertDictEqual(actual.__dict__, expected)
 
-    def test_parse_args_without_server_id(self):
+    def test_parse_args_without_server_name_and_ip(self):
         # delete -s_id parameter and value
+        argv = self.default_argv.copy()
+        del argv[12]
+        del argv[11]
+
+        del argv[10]
+        del argv[9]
+
+        # Expect default for arg server_name, server_ip
+        expected = self.default_expected.copy()
+        expected['server_name'] = 'Тестовый сервер'
+        expected['server_ip'] = '8.8.8.8'
+
+        expected_namespace = Namespace(**expected)
+        actual = parse_args(argv)
+        self.assertEqual(actual, expected_namespace)
+
+    def test_parse_args_without_project_name(self):
+        # delete -p_id parameter and value
         argv = self.default_argv.copy()
         del argv[8]
         del argv[7]
 
-        actual = parse_args(argv)
-        self.assertEqual(actual, self.default_expected_namespace)
+        # Expect default for arg project_name
+        expected = self.default_expected.copy()
+        expected['project_name'] = 'Тестовый проект'
 
-    def test_parse_args_without_project_id(self):
-        # delete -p_id parameter and value
-        argv = self.default_argv.copy()
-        del argv[10]
-        del argv[9]
-
+        expected_namespace = Namespace(**expected)
         actual = parse_args(argv)
-        self.assertEqual(actual, self.default_expected_namespace)
+        self.assertEqual(actual, expected_namespace)
