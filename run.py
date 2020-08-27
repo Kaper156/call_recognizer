@@ -3,6 +3,7 @@ import logging
 from recognizer.api import ApiClient
 from recognizer.cli import parse_args
 from recognizer.config import Config
+from recognizer.database import update_or_insert_phone_call
 from recognizer.helpers import get_datetime_now_utc, remove_file
 
 
@@ -32,11 +33,14 @@ def main(args, run_date_time):
     # If need saving to DB
     if args.db:
         # Import controller only if need save data to DB
-        from recognizer.database import DatabaseController
+        from recognizer.database import PostgresDatabaseController
         # Init DB controller
-        db = DatabaseController(**config.get_db_config())
-        # Insert or change instance of phone call
-        db.update_or_insert_phone_call(**phone_call_values, project_id=args.project_id, server_id=args.server_id)
+        db = PostgresDatabaseController(**config.get_db_config())
+        with db as session:
+            # Insert or change instance of phone call
+            update_or_insert_phone_call(session=session, **phone_call_values,
+                                        project_name=args.project_name,
+                                        server_name=args.server_name, server_ip=args.server_ip)
 
     # Remove file when work with him completed
     remove_file(args.filepath)
