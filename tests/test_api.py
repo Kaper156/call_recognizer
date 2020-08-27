@@ -4,6 +4,7 @@ import copy
 
 from grpc._channel import _InactiveRpcError
 
+from recognizer.analyzer import ImpossibleStageException
 from recognizer.api import ApiClient
 from recognizer.config import Config
 
@@ -72,7 +73,7 @@ class TestAPI(unittest.TestCase):
         self.expected_on_stage2[self.wav_files[3]]['stage_number'] = 2
 
         # Set answer
-        self.expected_on_stage2[self.wav_files[0]]['answer'] = 1
+        self.expected_on_stage2[self.wav_files[0]]['answer'] = None  # ImpossibleStageException
         self.expected_on_stage2[self.wav_files[1]]['answer'] = 1
         self.expected_on_stage2[self.wav_files[2]]['answer'] = 1
         self.expected_on_stage2[self.wav_files[3]]['answer'] = 0
@@ -84,5 +85,9 @@ class TestAPI(unittest.TestCase):
 
     def test_stage_2_is_comfort(self):
         for path_to_wav_file, expected in self.expected_on_stage2.items():
-            actual = self.api.recognize_wav(path_to_wav_file, 2)
-            self.assertDictEqual(actual, expected)
+            if expected['answer'] is None:
+                with self.assertRaises(ImpossibleStageException):
+                    self.api.recognize_wav(path_to_wav_file, 2)
+            else:
+                actual = self.api.recognize_wav(path_to_wav_file, 2)
+                self.assertDictEqual(actual, expected)
