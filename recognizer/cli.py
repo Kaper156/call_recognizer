@@ -3,9 +3,6 @@ import os.path
 import logging
 
 
-import recognizer.logger
-
-
 def existing_file(value):
     if not os.path.exists(value):
         raise argparse.ArgumentTypeError(f'File:"{value}" \t doesn\'t exists')
@@ -36,8 +33,7 @@ def phone(value):
 
 def stage(value):
     # Check values
-    # TODO fix to 1 and 2
-    if value in ['0', '1']:
+    if value in ['1', '2']:
         return int(value)
     raise argparse.ArgumentTypeError(f'Stage must be 0 or 1:"{value}"')
 

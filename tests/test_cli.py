@@ -1,5 +1,6 @@
 import unittest
 from io import StringIO
+from argparse import Namespace
 from unittest.mock import patch
 
 from recognizer.cli import parse_args
@@ -7,7 +8,6 @@ from recognizer.cli import parse_args
 from tests.settings import FIRST_WAV
 
 
-# TODO change expected dict to Namespace
 class TestCliArgParser(unittest.TestCase):
     def setUp(self) -> None:
         self.file = FIRST_WAV
@@ -27,10 +27,21 @@ class TestCliArgParser(unittest.TestCase):
             'server_id': 1,
             'project_id': 1,
         }
+        self.default_expected_namespace = Namespace(**self.default_expected)
 
-    def test_parse_args_correct_values(self):
+    def test_parse_args_correct_values_stage_1(self):
         actual = parse_args(self.default_argv)
-        self.assertDictEqual(actual.__dict__, self.default_expected)
+        self.assertEqual(actual, self.default_expected_namespace)
+
+    def test_parse_args_correct_values_stage_2(self):
+        argv = self.default_argv.copy()
+        argv[6] = '2'
+        actual = parse_args(argv)
+
+        expected = self.default_expected.copy()
+        expected['stage'] = 2
+
+        self.assertEqual(actual, Namespace(**expected))
 
     @patch('sys.stderr', new_callable=StringIO)
     def test_parse_args_file_doesnt_exists(self, mock_stderr):
@@ -112,7 +123,7 @@ class TestCliArgParser(unittest.TestCase):
         del argv[7]
 
         actual = parse_args(argv)
-        self.assertDictEqual(actual.__dict__, self.default_expected)
+        self.assertEqual(actual, self.default_expected_namespace)
 
     def test_parse_args_without_project_id(self):
         # delete -p_id parameter and value
@@ -121,4 +132,4 @@ class TestCliArgParser(unittest.TestCase):
         del argv[9]
 
         actual = parse_args(argv)
-        self.assertDictEqual(actual.__dict__, self.default_expected)
+        self.assertEqual(actual, self.default_expected_namespace)
