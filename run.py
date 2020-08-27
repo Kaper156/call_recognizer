@@ -1,21 +1,25 @@
+import logging
+
 from recognizer.api import ApiClient
 from recognizer.cli import parse_args
 from recognizer.config import Config
 from recognizer.database import update_or_insert_phone_call
-from recognizer.helpers import remove_file, get_wav_last_modify_date_time
+from recognizer.helpers import remove_file, get_wav_last_modify_date_time, format_phone_call_to_log
 
 
 def main(args):
-    import recognizer.logger
-
     # Load config (API and DB configuration)
     config = Config('configuration.ini')
+
+    # Get result logger
+    result_logger = logging.getLogger('result')
 
     # Init API
     api = ApiClient(**config.get_api_credentials(), stubs_filepath='./tests/files/stubs.txt')
     # Get response from API and recognize by stage
     api_response = api.recognize_wav(args.filepath, args.stage)
 
+    # Get datetime of last modify input wav file (used as call-datetime)
     call_date_time = get_wav_last_modify_date_time(args.filepath)
     phone_call_values = {
         'date_time': call_date_time,
@@ -27,7 +31,7 @@ def main(args):
     }
 
     # Save result to log file
-    recognizer.logger.log_call(**phone_call_values)
+    result_logger.info(format_phone_call_to_log(**phone_call_values))
 
     # If need saving to DB
     if args.db:

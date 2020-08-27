@@ -1,6 +1,8 @@
+import logging
 import argparse
 import os.path
-import logging
+
+logger = logging.getLogger(__name__)
 
 
 def existing_file(value):
@@ -63,9 +65,11 @@ def parse_args(argv):
     # Set optional parameter ip-address of server which related with call
     parser.add_argument('-s_ip', action='store', dest='server_ip', type=str,
                         default="8.8.8.8", required=False)
-    try:
-        input_parameters = parser.parse_args(argv)
-    except argparse.ArgumentTypeError as exc:
-        logging.exception(exc)
 
-    return input_parameters
+    try:
+        user_input_arguments = parser.parse_args(argv)
+
+    except argparse.ArgumentTypeError as exc:
+        logger.exception(exc)
+    logger.debug(f"Got user arguments: {user_input_arguments.__dict__}")
+    return user_input_arguments

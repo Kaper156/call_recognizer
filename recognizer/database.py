@@ -6,6 +6,9 @@ from sqlalchemy.exc import SQLAlchemyError, TimeoutError
 
 from recognizer.orm import Base, Project, Server, PhoneCall
 
+# Connect to logger
+logger = logging.getLogger(__name__)
+
 
 class DatabaseController(object):
     def __init__(self, connection_string):
@@ -15,19 +18,17 @@ class DatabaseController(object):
 
         self.connection_string = connection_string
 
-        # Module logger
-        logging.getLogger(__name__)
-        logging.debug(f"Try connect to DB with this parameters: {self.connection_string}")
+        logger.debug(f"Try connect to DB with this parameters: {self.connection_string}")
 
         try:
             self.engine = create_engine(self.connection_string)
             Base.metadata.create_all(self.engine)
             self.Session = sessionmaker(bind=self.engine)
         except TimeoutError as exc:
-            logging.exception(f"Timeout error while connect to DB", exc_info=exc)
+            logger.exception(f"Timeout error while connect to DB", exc_info=exc)
             raise exc
         except SQLAlchemyError as exc:
-            logging.exception(f"Error while connect to DB", exc_info=exc)
+            logger.exception(f"Error while connect to DB", exc_info=exc)
             raise exc
 
     def __enter__(self):
@@ -51,19 +52,19 @@ def update_or_insert_phone_call(session, date_time, stage_number, answer, phone_
                                 project_name, server_name, server_ip):
     # Try get existed instance of Phone_call by date-time and phone number
     # (Because one phone can accept only one call at moment)
-    logging.debug(f"Try find in DB PhoneCall with this parameters: date={date_time.date()}, time={date_time.time()}, "
+    logger.debug(f"Try find in DB PhoneCall with this parameters: date={date_time.date()}, time={date_time.time()}, "
                   f"phone_number={phone_number}")
     phone_call = session.query(PhoneCall).filter_by(date=date_time.date(), time=date_time.time(),
                                                     phone_number=phone_number).first()
     if phone_call:
         # Phone call already exist, change his stage and save
-        logging.debug("Phone call found in DB, update stage.")
+        logger.debug("Phone call found in DB, update stage.")
         phone_call.set_stage(stage_number, answer)
         session.add(phone_call)
         session.commit()
     else:
         # Phone call not exist in DB
-        logging.debug("Phone call not with this parameters not exist. Record will be created")
+        logger.debug("Phone call not with this parameters not exist. Record will be created")
         phone_call = PhoneCall(date_time, stage_number, answer, phone_number, duration, transcription)
 
     # Set phone_call relations
@@ -76,7 +77,7 @@ def update_or_insert_phone_call(session, date_time, stage_number, answer, phone_
 
     server = session.query(Server).filter_by(name=server_name, ip_address=server_ip).first()
     if server is None:
-        logging.debug(f"Server with name:{server_name} and ip_address: {server_ip} not exist. "
+        logger.debug(f"Server with name:{server_name} and ip_address: {server_ip} not exist. "
                       "Record will be created")
 
         server = Server(name=server_name, ip_address=server_ip)
@@ -84,9 +85,9 @@ def update_or_insert_phone_call(session, date_time, stage_number, answer, phone_
         session.commit()
 
     # Append call to project and server children
-    logging.debug(f"Add phone call to project ({project_name})")
+    logger.debug(f"Add phone call to project ({project_name})")
     project.phone_calls.append(phone_call)
-    logging.debug(f"Add phone call to server ({server_name}, <{server_ip}>)")
+    logger.debug(f"Add phone call to server ({server_name}, <{server_ip}>)")
     server.phone_calls.append(phone_call)
 
     # Commit project and server changes too
