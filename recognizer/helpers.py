@@ -5,7 +5,7 @@ import os
 logger = logging.getLogger(__name__)
 
 
-def remove_file(filepath, stub=True):
+def remove_file(filepath, stub=False):
     if stub:
         print(f"Removing: {filepath}")
         logger.debug(f"Fake remove file: {filepath}")

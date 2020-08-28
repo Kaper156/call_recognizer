@@ -15,7 +15,7 @@ def main(args):
     result_logger = logging.getLogger('result')
 
     # Init API
-    api = ApiClient(**config.get_api_credentials(), stubs_filepath='./tests/files/stubs.txt')
+    api = ApiClient(**config.get_api_credentials())  # , stubs_filepath='./tests/files/stubs.txt')
     # Get response from API and recognize by stage
     api_response = api.recognize_wav(args.filepath, args.stage)
 
