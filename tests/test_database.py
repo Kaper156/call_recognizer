@@ -1,8 +1,8 @@
+import datetime
 import unittest
 
 from recognizer.config import Config
 from recognizer.database import PostgresDatabaseController, update_or_insert_phone_call
-from recognizer.helpers import get_datetime_now_utc
 
 from tests.settings import REAL_CONFIG_FILE
 
@@ -24,7 +24,7 @@ class Test_update_or_insert_phone_call(unittest.TestCase):
         self.dbc = PostgresDatabaseController(**cfg.get_db_config())
 
         self.phone_call_data = {
-            'date_time': get_datetime_now_utc(),
+            'date_time': datetime.datetime.now(),
             'stage_number': 1,
             'answer': 1,
             'phone_number': 71234567890,

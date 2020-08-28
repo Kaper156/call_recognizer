@@ -27,7 +27,6 @@ class Server(Base):
     description = Column(Text)
 
 
-# TODO make date and phone uniq together or make id from them
 class PhoneCall(Base):
     __tablename__ = 'phone_call'
     id = Column(Integer, primary_key=True, autoincrement='auto')
@@ -58,15 +57,10 @@ class PhoneCall(Base):
         self.transcription = transcription
 
     def set_stage(self, stage_number: int, answer: bool):
-        # TODO WARNING CHECK THIS
-        self.stages = set_bit(self.stages or 0, stage_number, int(answer))
+        self.stages = set_bit(self.stages or 0, stage_number-1, int(answer))
         self.count_stages = max(self.count_stages or 0, stage_number)
 
     def get_stage(self, stage_number: int):
-        # stage_number -= 1
-        # TODO WARNING!
-        # TODO check count_stages
-        # TODO move this logic to another class (Stage)
         value = get_bit(self.stages, stage_number - 1)
         if stage_number == 1:
             return bool(value)

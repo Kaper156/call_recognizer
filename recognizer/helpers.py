@@ -15,7 +15,6 @@ def remove_file(filepath, stub=True):
 
 
 def set_bit(v, index, x):
-    """Set the index:th bit of v to 1 if x is truthy, else to 0, and return the new value."""
     mask = 1 << index  # Compute mask, an integer with just bit 'index' set.
     v &= ~mask  # Clear the bit indicated by the mask (if x is False)
     if x:
