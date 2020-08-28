@@ -9,7 +9,7 @@ from recognizer.helpers import remove_file, get_wav_last_modify_date_time, forma
 
 def main(args):
     # Load config (API and DB configuration)
-    config = Config('configuration.ini')
+    config = Config('configuration1.ini')
 
     # Get result logger
     result_logger = logging.getLogger('result')

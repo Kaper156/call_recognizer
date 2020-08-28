@@ -2,20 +2,31 @@ import logging
 import os.path
 import configparser
 
+logger = logging.getLogger(__name__)
+
 
 class Config:
     def __init__(self, config_file_path):
-        self.logger = logging.getLogger(__name__)
-
+        '''
+        Used to get credentials for API and connection string to Database
+        :param config_file_path: path to *.ini file of project
+        '''
         self.filepath = config_file_path
         self.parser = configparser.ConfigParser()
+        # If user start program without path to config or config is not exist
         if not os.path.exists(config_file_path):
-            self._write_config_()
-            raise FileNotFoundError("File not found. Parser create .ini file, please set parameters.")
+            # Write empty config at this path
+            self._write_empty_config_()
+            logger.critical("Error while loading config. Empty config created.")
+            exit(1)
         self.parser.read(config_file_path)
-        self.logger.debug(f"Successfully read cfg from: {config_file_path}")
+        logger.debug(f"Successfully read cfg from: {config_file_path}")
 
-    def _write_config_(self):
+    def _write_empty_config_(self):
+        '''
+        Write at self.filepath empty config file
+        :return: None
+        '''
         # Clear parser
         self.parser = configparser.ConfigParser()
 
@@ -32,7 +43,7 @@ class Config:
 
         with open(self.filepath, 'w') as file_handler:
             self.parser.write(file_handler)
-        self.logger.debug(f"Write empty config to: {self.filepath}")
+        logger.debug(f"Write empty config to: {self.filepath}")
 
     def get_api_credentials(self):
         return {

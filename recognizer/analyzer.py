@@ -1,11 +1,15 @@
+# Raise when analyzer cannot give an exact answer
 class UnAnalyzedTranscriptionException(Exception):
     pass
 
 
+# Raise when given stage which not supported now
 class UnsupportedStageException(Exception):
     pass
 
 
+# Raise when call cannot be at this stage.
+# For ex.: doesn't matter is comfort to talk or not if previous stage determinate that is answerphone
 class ImpossibleStageException(Exception):
     pass
 
@@ -25,7 +29,14 @@ class TranscriptionAnalyzer:
     }
 
     def __init__(self, response):
+        '''
+        Analyze response
+        :param response: response from api
+        '''
+        # Read response and get transcription and duration
         self.transcription, self.duration = self.read_response(response)
+
+        # Tuple of method to perform transcription into answer at stage
         self.stage_performers = (
             self.is_human,
             self.is_comfort,
@@ -54,12 +65,17 @@ class TranscriptionAnalyzer:
             return self.stage_performers[stage]()
 
     def is_human(self):
+        # If transcription contain any phrases which trigger it is answerphone
         for yes_is_it in self.ANSWERPHONE:
             if yes_is_it in self.transcription:
+                # It is answerphone
                 return 0
+        # Else
+        # It is human
         return 1
 
     def is_comfort(self):
+        # If it is answerphone doesn't matter what it says
         if not self.is_human():
             raise ImpossibleStageException("Analyzer cannot determinate answer, "
                                            "because previous stage is failed")
@@ -69,6 +85,7 @@ class TranscriptionAnalyzer:
         for positive_phrase in self.COMFORT[True]:
             if positive_phrase in self.transcription:
                 return 1
+        # To control and learn analyzer
         raise UnAnalyzedTranscriptionException("Analyzer cannot determinate answer, because "
                                                "transcription does'nt contain any known phrases")
 

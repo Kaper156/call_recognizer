@@ -5,12 +5,15 @@ import os.path
 logger = logging.getLogger(__name__)
 
 
+# Used as arg type
 def existing_file(value):
+    # Check file exist
     if not os.path.exists(value):
         raise argparse.ArgumentTypeError(f'File:"{value}" \t doesn\'t exists')
     return value
 
 
+# Used as arg type
 def phone(value):
     # Delete plus
     if value[0] == '+':
@@ -33,6 +36,7 @@ def phone(value):
     return value
 
 
+# Used as arg type
 def stage(value):
     # Check values
     if value in ['1', '2']:
@@ -76,7 +80,6 @@ def parse_args(argv):
 
     try:
         user_input_arguments = parser.parse_args(argv)
-
     except argparse.ArgumentTypeError as exc:
         logger.exception(exc)
     logger.debug(f"Got user arguments: {user_input_arguments.__dict__}")

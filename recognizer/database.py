@@ -10,6 +10,7 @@ from recognizer.orm import Base, Project, Server, PhoneCall
 logger = logging.getLogger(__name__)
 
 
+# Connection implement as context manager which return session
 class DatabaseController(object):
     def __init__(self, connection_string):
         # Skip SQLAlchemy warnings
@@ -38,22 +39,25 @@ class DatabaseController(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.Session.close_all()
 
+    # Used for tests
     def __clear_db__(self):
         Base.metadata.drop_all(bind=self.engine)
 
 
+# Specified for Postgres DB controller
 class PostgresDatabaseController(DatabaseController):
     def __init__(self, host, port, database, user, password):
         connection_string = f'postgres://{user}:{password}@{host}:{port}/{database}'
         super().__init__(connection_string)
 
 
+# Procedure of insert new phone call or updating existed
 def update_or_insert_phone_call(session, date_time, stage_number, answer, phone_number, duration, transcription,
                                 project_name, server_name, server_ip):
     # Try get existed instance of Phone_call by date-time and phone number
     # (Because one phone can accept only one call at moment)
     logger.debug(f"Try find in DB PhoneCall with this parameters: date={date_time.date()}, time={date_time.time()}, "
-                  f"phone_number={phone_number}")
+                 f"phone_number={phone_number}")
     phone_call = session.query(PhoneCall).filter_by(date=date_time.date(), time=date_time.time(),
                                                     phone_number=phone_number).first()
     if phone_call:
@@ -78,7 +82,7 @@ def update_or_insert_phone_call(session, date_time, stage_number, answer, phone_
     server = session.query(Server).filter_by(name=server_name, ip_address=server_ip).first()
     if server is None:
         logger.debug(f"Server with name:{server_name} and ip_address: {server_ip} not exist. "
-                      "Record will be created")
+                     "Record will be created")
 
         server = Server(name=server_name, ip_address=server_ip)
         session.add(server)
